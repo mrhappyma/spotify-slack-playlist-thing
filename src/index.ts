@@ -28,3 +28,4 @@ bolt.start(parseInt(env.PORT, 10));
 
 import "./api";
 import "./home";
+import "./shortcut";

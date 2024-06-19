@@ -2,6 +2,8 @@ import { SpotifyApi } from "@spotify/web-api-ts-sdk";
 import { bolt, prisma } from ".";
 import env from "./utils/env";
 import { getUser } from "./utils/user-token";
+import { BlockAction, StaticSelectAction } from "@slack/bolt";
+import { AlbumBehavior } from "@prisma/client";
 
 bolt.event("app_home_opened", async ({ event }) => {
   await updateHome(event.user);
@@ -17,14 +19,83 @@ export async function updateHome(userId: string) {
       refresh_token: user.refreshToken,
       token_type: "Bearer",
     });
+    const me = await spotify.currentUser.profile();
     const playlists = await spotify.currentUser.playlists.playlists();
-    const playlistBlocks = playlists.items.map((playlist) => ({
+    const editablePlaylists = playlists.items.filter(
+      (playlist) => playlist.owner.id === me.id || playlist.collaborative
+    );
+    const playlistSelect = {
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `<${playlist.external_urls.spotify}|${playlist.name}>`,
+        text: "where should i put songs?",
       },
-    }));
+      accessory: {
+        type: "static_select",
+        placeholder: {
+          type: "plain_text",
+          text: "pick a playlist",
+        },
+        options: editablePlaylists.map((playlist) => ({
+          text: {
+            type: "plain_text",
+            text: playlist.name,
+          },
+          value: playlist.id,
+        })),
+        initial_option: user.playlistId
+          ? {
+              text: {
+                type: "plain_text",
+                text: playlists.items.find(
+                  (playlist) => playlist.id === user.playlistId
+                )?.name,
+              },
+              value: user.playlistId,
+            }
+          : undefined,
+        action_id: "playlist_select",
+      },
+    };
+    const albumBehaviorSelect = {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: "what should i do with albums?",
+      },
+      accessory: {
+        type: "static_select",
+        options: [
+          {
+            text: {
+              type: "plain_text",
+              text: "add them to that playlist",
+            },
+            value: "add",
+          },
+          {
+            text: {
+              type: "plain_text",
+              text: "save them to my library",
+            },
+            value: "save",
+          },
+        ],
+        initial_option: user.albumBehavior
+          ? {
+              text: {
+                type: "plain_text",
+                text:
+                  user.albumBehavior === AlbumBehavior.ADD
+                    ? "add them to that playlist"
+                    : "save them to my library",
+              },
+              value: user.albumBehavior === AlbumBehavior.ADD ? "add" : "save",
+            }
+          : undefined,
+        action_id: "album_behavior_select",
+      },
+    };
     await bolt.client.views.publish({
       user_id: userId,
       view: {
@@ -37,7 +108,8 @@ export async function updateHome(userId: string) {
               text: `oh hey <@${userId}>, you've authed that's crazy`,
             },
           },
-          ...playlistBlocks,
+          playlistSelect,
+          albumBehaviorSelect,
         ],
       },
     });
@@ -78,3 +150,28 @@ export async function updateHome(userId: string) {
     },
   });
 }
+
+bolt.action("playlist_select", async ({ ack, body }) => {
+  await ack();
+  const b = body as BlockAction<StaticSelectAction>;
+  await prisma.user.update({
+    where: { id: body.user.id },
+    data: { playlistId: b.actions[0].selected_option!.value },
+  });
+  await updateHome(body.user.id);
+});
+
+bolt.action("album_behavior_select", async ({ ack, body }) => {
+  await ack();
+  const b = body as BlockAction<StaticSelectAction>;
+  await prisma.user.update({
+    where: { id: body.user.id },
+    data: {
+      albumBehavior:
+        b.actions[0].selected_option!.value == "add"
+          ? AlbumBehavior.ADD
+          : AlbumBehavior.SAVE,
+    },
+  });
+  await updateHome(body.user.id);
+});

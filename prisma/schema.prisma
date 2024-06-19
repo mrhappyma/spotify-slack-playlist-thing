@@ -8,12 +8,21 @@ datasource db {
 }
 
 model User {
-  id           String    @id
-  refreshToken String? /// @encrypted
-  accessToken  String? /// @encrypted
-  expiresAt    DateTime?
-  linkingToken String?   @unique
-  timesUsed    Int       @default(0)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id            String         @id
+  refreshToken  String? /// @encrypted
+  accessToken   String? /// @encrypted
+  expiresAt     DateTime?
+  linkingToken  String?        @unique
+  playlistId    String? /// @encrypted
+  albumBehavior AlbumBehavior?
+  timesUsed     Int            @default(0)
+  songsSaved    Int            @default(0)
+  albumsSaved   Int            @default(0)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+enum AlbumBehavior {
+  ADD
+  SAVE
 }
