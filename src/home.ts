@@ -41,7 +41,7 @@ export async function updateHome(userId: string) {
           options: editablePlaylists.map((playlist) => ({
             text: {
               type: "plain_text",
-              text: playlist.name,
+              text: playlist.name.length > 0 ? playlist.name : "untitled",
             },
             value: playlist.id,
           })),
