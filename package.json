@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@47ng/cloak": "^1.1.0",
     "@types/node": "^20.14.2",
     "prisma": "^5.15.0",
     "typescript": "^5.4.5"

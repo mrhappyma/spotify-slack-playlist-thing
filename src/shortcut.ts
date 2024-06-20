@@ -54,9 +54,13 @@ bolt.shortcut("save", async ({ ack, body, client, respond }) => {
         songs.push(...trackIds);
       }
     }
+    const songsText = songs.length === 1 ? "song" : "songs";
+    const albumsText = albums.length === 1 ? "album" : "albums";
+    const where = songs.length === 0 ? "this song" : "these songs";
+
     if (songs.length > 0 && !user.playlistId) {
       await respond({
-        text: "idk where to put these songs, go to my home and set a playlist",
+        text: `idk where to put ${where}, go to my home and set a playlist`,
       });
       return;
     }
@@ -70,7 +74,7 @@ bolt.shortcut("save", async ({ ack, body, client, respond }) => {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: `added ${songs.length} songs to <${playlist.external_urls.spotify}|${playlist.name}>`,
+          text: `added ${songs.length} ${songsText} to <${playlist.external_urls.spotify}|${playlist.name}>`,
         },
       });
     }
@@ -80,7 +84,7 @@ bolt.shortcut("save", async ({ ack, body, client, respond }) => {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: `saved ${albums.length} albums to your library`,
+          text: `saved ${albums.length} ${albumsText} to your library`,
         },
       });
     }

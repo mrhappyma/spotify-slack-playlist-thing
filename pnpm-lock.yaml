@@ -19,11 +19,14 @@ importers:
         version: 1.2.0
       prisma-field-encryption:
         specifier: ^1.5.2
-        version: 1.5.2(@prisma/client@5.15.0)
+        version: 1.5.2(@prisma/client@5.15.0(prisma@5.15.0))
       zod:
         specifier: ^3.23.8
         version: 3.23.8
     devDependencies:
+      '@47ng/cloak':
+        specifier: ^1.1.0
+        version: 1.1.0
       '@types/node':
         specifier: ^20.14.2
         version: 20.14.2
@@ -872,7 +875,7 @@ snapshots:
       '@stablelib/hex': 1.0.1
 
   '@prisma/client@5.15.0(prisma@5.15.0)':
-    dependencies:
+    optionalDependencies:
       prisma: 5.15.0
 
   '@prisma/debug@5.15.0': {}
@@ -1633,7 +1636,7 @@ snapshots:
 
   possible-typed-array-names@1.0.0: {}
 
-  prisma-field-encryption@1.5.2(@prisma/client@5.15.0):
+  prisma-field-encryption@1.5.2(@prisma/client@5.15.0(prisma@5.15.0)):
     dependencies:
       '@47ng/cloak': 1.1.0
       '@prisma/client': 5.15.0(prisma@5.15.0)

@@ -1,8 +1,6 @@
 import { prisma } from "..";
 
 export const getUser = async (userId: string) => {
-  //TODO: error handling
-  //rn if they remove the spotify auth its really not good
   const date = new Date();
   let user = await prisma.user.upsert({
     where: { id: userId },
