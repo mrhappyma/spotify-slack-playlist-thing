@@ -108,7 +108,7 @@ export async function updateHome(userId: string) {
               type: "section",
               text: {
                 type: "mrkdwn",
-                text: `oh hey <@${userId}>, you've authed that's crazy`,
+                text: `oh hey <@${userId}>, you've authed that's crazy.\nnow you can use the \`save to spotify\` shortcut to save songs & albums from messages.`,
               },
             },
             playlistSelect,
