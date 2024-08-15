@@ -131,7 +131,7 @@ export async function updateHome(userId: string) {
                   type: "plain_text",
                   text: "reauth",
                 },
-                value: "auth_clear",
+                action_id: "auth_clear",
               },
             },
           ],
